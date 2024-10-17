@@ -1,9 +1,65 @@
 #include <gtk/gtk.h>
 
+static void add_task(gpointer *user_data, const gchar *task_text)
+{
+	GtkWidget *row, *hbox, *label, *check_button, *tasks_box;
+
+	tasks_box = (GtkWidget *) user_data;
+
+	row = gtk_list_box_row_new();
+        hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+        label = gtk_label_new(task_text);
+        check_button = gtk_check_button_new();
+
+        gtk_container_add(GTK_CONTAINER(row), hbox);
+        gtk_box_pack_start(GTK_BOX(hbox), check_button, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+        gtk_list_box_insert(GTK_LIST_BOX(tasks_box), row, -1);
+        gtk_widget_show_all(tasks_box);
+}
+
+static void on_add_task_clicked(GtkWidget *widget, gpointer tasks_box)
+{
+	GtkWidget *entry, *dialog, *content_area;
+	gint result;
+	const gchar *task_text;
+
+	/* create a dialog to input a new task string */
+	dialog = gtk_dialog_new_with_buttons("Add a new task",
+					     GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+					     GTK_DIALOG_MODAL |
+					     GTK_DIALOG_DESTROY_WITH_PARENT,
+					     "_OK",
+					     GTK_RESPONSE_OK,
+					     "_Cancel",
+					     GTK_RESPONSE_CANCEL,
+					     NULL);
+
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+	/* create an entry widget to accept the search term */
+	entry = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(content_area), entry, TRUE, TRUE, 0);
+	gtk_widget_show(entry);
+
+	/* run the dialog and get user input */
+	result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+	if(result == GTK_RESPONSE_OK) {
+		task_text = gtk_entry_get_text(GTK_ENTRY(entry));
+		if(task_text && *task_text!= '\0') {
+			add_task(tasks_box, task_text);
+		}
+	}
+
+	gtk_widget_destroy(dialog);
+}
+
 static void activate(GtkApplication *app, gpointer user_data)
 {
 	GtkApplication *application;
-	GtkWidget *win, *vbox, *toolbar, *add_task_tool_img;
+	GtkWidget *win, *today_label, *vbox, *toolbar, *add_task_tool_img, *tasks_box;
 	GtkToolItem *add_task_button;
 
 	/* create a new application window */
@@ -33,6 +89,21 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 	/* add toolbar to the vertical box */
     	gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+
+	/* create a new today label */
+	today_label = gtk_label_new("Today");
+
+	/* add the label to the vbox */
+	gtk_box_pack_start(GTK_BOX(vbox), today_label, FALSE, FALSE, 0);
+
+	/* create tasks box */
+	tasks_box = gtk_list_box_new();
+
+	/* add tasks box to the vobx */
+	gtk_box_pack_start(GTK_BOX(vbox), tasks_box, TRUE, TRUE, 0);
+
+	/* connect the add task button to the callback function */
+	g_signal_connect(add_task_button, "clicked", G_CALLBACK(on_add_task_clicked), tasks_box);
 
 	gtk_window_present(GTK_WINDOW (win));
 	gtk_widget_show_all(win);
