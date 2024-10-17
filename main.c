@@ -1,13 +1,8 @@
-#include <gtk/gtk.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "task.h"
 
-struct task {
-	short int completed;
-	char task_string[100];
-};
 int db_fd;	/* database file descriptor */
 
 static void on_window_destroy(GtkWidget *widget, gpointer data)
@@ -179,6 +174,9 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 	printf("@db_fd = %d\n", db_fd);
 
+	/* show tasks from the database file in the tasks box */
+	show_tasks(tasks_box, db_fd);
+
 	/* connect the destroy signal to the function that closes the database file */
 	g_signal_connect(win, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
@@ -188,7 +186,7 @@ static void activate(GtkApplication *app, gpointer user_data)
 	/* connect the delete task button to the callback function */
 	g_signal_connect(delete_task_button, "clicked", G_CALLBACK(on_delete_task_clicked), tasks_box);
 
-	gtk_window_present(GTK_WINDOW (win));
+	gtk_window_present(GTK_WINDOW(win));
 	gtk_widget_show_all(win);
 	gtk_window_maximize(GTK_WINDOW(win));
 }
