@@ -174,6 +174,9 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 	printf("@db_fd = %d\n", db_fd);
 
+	/* get last allocated task id from the database */
+	db_get_last_allocated_task_id(db_fd);
+
 	/* show tasks from the database file in the tasks box */
 	show_tasks(tasks_box, db_fd);
 

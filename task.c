@@ -3,6 +3,20 @@
  */
 #include "task.h"
 
+short int last_allocated_task_id;
+
+/* find database file size in bytes */
+static int find_db_file_size(int db_fd)
+{
+	int file_size;
+
+	lseek(db_fd, 0, SEEK_SET);
+
+	file_size = lseek(db_fd, 0, SEEK_END);
+
+	return file_size;
+}
+
 /* show tasks from the database file in the tasks box */
 void show_tasks(GtkWidget *tasks_box, int db_fd)
 {
@@ -10,9 +24,7 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 	struct task to_do_task;
 	GtkWidget *row, *hbox, *label, *check_button;
 
-	lseek(db_fd, 0, SEEK_SET);
-
-	file_size = lseek(db_fd, 0, SEEK_END);
+	file_size = find_db_file_size(db_fd);
 
 	printf("@file_size = %d\n", file_size);
 
@@ -43,3 +55,24 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
         
 	gtk_widget_show_all(tasks_box);
 }
+
+void db_get_last_allocated_task_id(int db_fd)
+{
+	int file_size;
+
+	file_size = find_db_file_size(db_fd);
+
+	lseek(db_fd, 0, SEEK_SET);
+
+	if(file_size == 0x0) {	/* first usage of the application */
+		last_allocated_task_id = 0;
+		write(db_fd, &last_allocated_task_id, sizeof(last_allocated_task_id));
+		printf("@last_allocated_task_id = %d\n", last_allocated_task_id);
+		return;
+	} else {
+		read(db_fd, &last_allocated_task_id, sizeof(last_allocated_task_id));
+		printf("@last_allocated_task_id = %d\n", last_allocated_task_id);
+	}
+}
+
+	
