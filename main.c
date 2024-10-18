@@ -31,12 +31,21 @@ static void add_task(gpointer *user_data, const gchar *task_text)
         gtk_list_box_insert(GTK_LIST_BOX(tasks_box), row, -1);
 
 	/* add task to the database file */
+	new_task.id = get_last_allocated_task_id() + 1;
 	strncpy(new_task.task_string, task_text, 100);
 	new_task.completed = 0;
 
-	lseek(db_fd, 0, SEEK_END);	
+	lseek(db_fd, 0, SEEK_END);
 
 	write(db_fd, &new_task, sizeof(struct task));
+
+	/* update the last allocated task id in both the client and the
+	 * database file
+	 */
+	set_last_allocated_task_id(new_task.id);
+
+	lseek(db_fd, 0, SEEK_SET);
+	write(db_fd, &new_task.id, sizeof(new_task.id));
 
 
         gtk_widget_show_all(tasks_box);
