@@ -3,6 +3,7 @@
  */
 #include "task.h"
 #include "checkbox.h"
+#include "include/db/task.h"
 
 short int last_allocated_task_id;
 
@@ -16,31 +17,14 @@ void set_last_allocated_task_id(short int id)
 	last_allocated_task_id = id;
 }
 
-/* find database file size in bytes */
-static int find_db_file_size(int db_fd)
-{
-	int file_size;
-
-	lseek(db_fd, 0, SEEK_SET);
-
-	file_size = lseek(db_fd, 0, SEEK_END);
-
-	return file_size;
-}
-
 /* show tasks from the database file in the tasks box */
 void show_tasks(GtkWidget *tasks_box, int db_fd)
 {
-	int i, num_tasks, records_size;
+	int i;
+	short int num_tasks;
 	struct task to_do_task;
 
-	records_size = find_db_file_size(db_fd) - sizeof(last_allocated_task_id);
-
-	printf("@records_size = %d\n", records_size);
-
-	num_tasks = records_size/sizeof(struct task);
-	
-	printf("@num_tasks = %d\n", num_tasks);
+	num_tasks = db_find_num_tasks();
 	
 	lseek(db_fd, sizeof(last_allocated_task_id), SEEK_SET);
 

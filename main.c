@@ -1,21 +1,12 @@
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include "task.h"
-
-int db_fd;	/* database file descriptor */
-
-static void on_window_destroy(GtkWidget *widget, gpointer data)
-{
-	close(db_fd);
-	printf("@db file closed successfully!\n");
-}
+#include "include/db/db.h"
 
 /* add a new task to the tasks box and the database file */
 static void add_task(gpointer *user_data, const gchar *task_text)
 {
 	GtkWidget *row, *hbox, *label, *check_button, *tasks_box;
 	struct task new_task;
+	int db_fd;
 
 	tasks_box = (GtkWidget *) user_data;
 	
@@ -26,6 +17,8 @@ static void add_task(gpointer *user_data, const gchar *task_text)
 	add_task_to_tasks_box(tasks_box, new_task.id, new_task.task_string);
 
 	/* add task to the database file */
+	db_fd = get_db_fd();
+
 	lseek(db_fd, 0, SEEK_END);
 
 	write(db_fd, &new_task, sizeof(struct task));
@@ -166,19 +159,13 @@ static void activate(GtkApplication *app, gpointer user_data)
 	gtk_box_pack_start(GTK_BOX(vbox), tasks_box, TRUE, TRUE, 0);
 
 	/* open database file */
-	db_fd = open("resources/tasks", O_RDWR, 0600);
-	if (db_fd == -1) {
-		printf("cannot open database file.\n");
-		return;
-	}
-
-	printf("@db_fd = %d\n", db_fd);
-
+	open_db_file();
+	
 	/* get last allocated task id from the database */
-	db_get_last_allocated_task_id(db_fd);
+	db_get_last_allocated_task_id(get_db_fd());
 
 	/* show tasks from the database file in the tasks box */
-	show_tasks(tasks_box, db_fd);
+	show_tasks(tasks_box, get_db_fd());
 
 	/* connect the destroy signal to the function that closes the database file */
 	g_signal_connect(win, "destroy", G_CALLBACK(on_window_destroy), NULL);
