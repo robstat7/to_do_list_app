@@ -12,3 +12,6 @@ void db_get_last_allocated_task_id(int db_fd);
 short int get_last_allocated_task_id();
 void set_last_allocated_task_id(short int id);
 static int find_db_file_size(int db_fd);
+void add_task_to_tasks_box(GtkWidget *tasks_box,
+			   short int task_id,
+			   char* task_string);

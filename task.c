@@ -33,7 +33,6 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 {
 	int i, num_tasks, records_size;
 	struct task to_do_task;
-	GtkWidget *row, *hbox, *label, *check_button;
 
 	records_size = find_db_file_size(db_fd) - sizeof(last_allocated_task_id);
 
@@ -58,26 +57,7 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 		printf("@to_do_task.completed = %d\n", to_do_task.completed);
 		printf("@to_do_task.task_string= %s\n", to_do_task.task_string);
 		
-		row = gtk_list_box_row_new();
-		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-		label = gtk_label_new(to_do_task.task_string);
-		check_button = gtk_check_button_new();
-		
-		gtk_container_add(GTK_CONTAINER(row), hbox);
-
-		/* store the task id in the row's GObject data */
-		g_object_set_data(G_OBJECT(hbox), "task_id", g_new(gint, 1)); /* allocating space for int */
-		*(gint *)g_object_get_data(G_OBJECT(hbox), "task_id") = to_do_task.id;  /* setting the task id value */
-
-		printf("@task_id = %d\n", *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id"));
-
-		/* connect the 'toggled' signal for the checkbox */
-		g_signal_connect(check_button, "toggled", G_CALLBACK(on_row_checkbox_toggled), hbox);
-
-		gtk_box_pack_start(GTK_BOX(hbox), check_button, FALSE, FALSE, 0);
-		gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-		
-		gtk_list_box_insert(GTK_LIST_BOX(tasks_box), row, -1);
+		add_task_to_tasks_box(tasks_box, to_do_task.id, to_do_task.task_string);
 	}
         
 	gtk_widget_show_all(tasks_box);
@@ -102,4 +82,30 @@ void db_get_last_allocated_task_id(int db_fd)
 	}
 }
 
+void add_task_to_tasks_box(GtkWidget *tasks_box,
+			   short int task_id,
+			   char* task_string)
+{
+	GtkWidget *row, *hbox, *label, *check_button;
+
+	row = gtk_list_box_row_new();
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+	label = gtk_label_new(task_string);
+	check_button = gtk_check_button_new();
 	
+	gtk_container_add(GTK_CONTAINER(row), hbox);
+
+	/* store the task id in the row's GObject data */
+	g_object_set_data(G_OBJECT(hbox), "task_id", g_new(gint, 1)); /* allocating space for int */
+	*(gint *)g_object_get_data(G_OBJECT(hbox), "task_id") = task_id;  /* setting the task id value */
+
+	printf("@task_id = %d\n", *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id"));
+
+	/* connect the 'toggled' signal for the checkbox */
+	g_signal_connect(check_button, "toggled", G_CALLBACK(on_row_checkbox_toggled), hbox);
+
+	gtk_box_pack_start(GTK_BOX(hbox), check_button, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	
+	gtk_list_box_insert(GTK_LIST_BOX(tasks_box), row, -1);
+}

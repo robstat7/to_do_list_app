@@ -11,7 +11,7 @@ static void on_window_destroy(GtkWidget *widget, gpointer data)
 	printf("@db file closed successfully!\n");
 }
 
-/* add a new task to the tasks box */
+/* add a new task to the tasks box and the database file */
 static void add_task(gpointer *user_data, const gchar *task_text)
 {
 	GtkWidget *row, *hbox, *label, *check_button, *tasks_box;
