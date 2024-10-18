@@ -2,6 +2,7 @@
  * task related functions
  */
 #include "task.h"
+#include "checkbox.h"
 
 short int last_allocated_task_id;
 
@@ -69,6 +70,9 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 		*(gint *)g_object_get_data(G_OBJECT(hbox), "task_id") = to_do_task.id;  /* setting the task id value */
 
 		printf("@task_id = %d\n", *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id"));
+
+		/* connect the 'toggled' signal for the checkbox */
+		g_signal_connect(check_button, "toggled", G_CALLBACK(on_row_checkbox_toggled), hbox);
 
 		gtk_box_pack_start(GTK_BOX(hbox), check_button, FALSE, FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
