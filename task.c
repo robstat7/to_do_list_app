@@ -46,6 +46,8 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 
 	for(i = 0; i < num_tasks; i++) {
 		read(db_fd, &to_do_task, sizeof(struct task));
+
+		/* seek from the beginning of the file to the task record offset */
 		lseek(db_fd,
 		      (sizeof(last_allocated_task_id) +
 		       ((i + 1) * sizeof(struct task))),
@@ -61,6 +63,13 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 		check_button = gtk_check_button_new();
 		
 		gtk_container_add(GTK_CONTAINER(row), hbox);
+
+		/* store the task id in the row's GObject data */
+		g_object_set_data(G_OBJECT(hbox), "task_id", g_new(gint, 1)); /* allocating space for int */
+		*(gint *)g_object_get_data(G_OBJECT(hbox), "task_id") = to_do_task.id;  /* setting the task id value */
+
+		printf("@task_id = %d\n", *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id"));
+
 		gtk_box_pack_start(GTK_BOX(hbox), check_button, FALSE, FALSE, 0);
 		gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 		
