@@ -31,12 +31,6 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 	for(i = 0; i < num_tasks; i++) {
 		read(db_fd, &to_do_task, sizeof(struct task));
 
-		/* seek from the beginning of the file to the task record offset */
-		lseek(db_fd,
-		      (sizeof(last_allocated_task_id) +
-		       ((i + 1) * sizeof(struct task))),
-		      SEEK_SET);
-
 		printf("@to_do_task.id = %d\n", to_do_task.id);
 		printf("@to_do_task.completed = %d\n", to_do_task.completed);
 		printf("@to_do_task.task_string= %s\n", to_do_task.task_string);

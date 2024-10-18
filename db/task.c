@@ -33,4 +33,3 @@ short int db_find_num_tasks(void)
 
 	return num_tasks;
 }
-
