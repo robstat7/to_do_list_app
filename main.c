@@ -14,7 +14,7 @@ static void add_task(gpointer *user_data, const gchar *task_text)
 	strncpy(new_task.task_string, task_text, 100);
 	new_task.completed = 0;
 
-	add_task_to_tasks_box(tasks_box, new_task.id, new_task.task_string);
+	add_task_to_tasks_box(tasks_box, new_task.id, new_task.completed, new_task.task_string);
 
 	/* add task to the database file */
 	db_fd = get_db_fd();

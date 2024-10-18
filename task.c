@@ -35,7 +35,7 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 		printf("@to_do_task.completed = %d\n", to_do_task.completed);
 		printf("@to_do_task.task_string= %s\n", to_do_task.task_string);
 		
-		add_task_to_tasks_box(tasks_box, to_do_task.id, to_do_task.task_string);
+		add_task_to_tasks_box(tasks_box, to_do_task.id, to_do_task.completed, to_do_task.task_string);
 	}
         
 	gtk_widget_show_all(tasks_box);
@@ -62,6 +62,7 @@ void db_get_last_allocated_task_id(int db_fd)
 
 void add_task_to_tasks_box(GtkWidget *tasks_box,
 			   short int task_id,
+			   short int task_completed,
 			   char* task_string)
 {
 	GtkWidget *row, *hbox, *label, *check_button;
@@ -79,6 +80,13 @@ void add_task_to_tasks_box(GtkWidget *tasks_box,
 
 	printf("@task_id = %d\n", *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id"));
 
+	/* check/uncheck check button based on passed task_completed value */
+	if(task_completed == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), FALSE);
+	} else if(task_completed == 1) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), TRUE);
+	}
+		
 	/* connect the 'toggled' signal for the checkbox */
 	g_signal_connect(check_button, "toggled", G_CALLBACK(on_row_checkbox_toggled), hbox);
 
