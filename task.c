@@ -31,6 +31,9 @@ void show_tasks(GtkWidget *tasks_box, int db_fd)
 	for(i = 0; i < num_tasks; i++) {
 		read(db_fd, &to_do_task, sizeof(struct task));
 
+		if(to_do_task.id == -1)
+			continue;
+
 		printf("@to_do_task.id = %d\n", to_do_task.id);
 		printf("@to_do_task.completed = %d\n", to_do_task.completed);
 		printf("@to_do_task.task_string= %s\n", to_do_task.task_string);

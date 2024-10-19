@@ -1,5 +1,6 @@
 #include "task.h"
 #include "include/db/db.h"
+#include "include/db/task.h"
 
 /* add a new task to the tasks box and the database file */
 static void add_task(gpointer *user_data, const gchar *task_text)
@@ -58,6 +59,9 @@ static void on_delete_task_clicked(GtkWidget *widget, gpointer tasks_box)
 	if(result == GTK_RESPONSE_OK) {
 			selected_row = (GtkWidget *) gtk_list_box_get_selected_row(
 					GTK_LIST_BOX(tasks_box));
+
+			db_delete_task(selected_row);
+
 			/* destroy the row */
 			gtk_widget_destroy(selected_row);
 	}
