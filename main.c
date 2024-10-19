@@ -90,6 +90,89 @@ static void on_delete_task_clicked(GtkWidget *widget, gpointer tasks_box)
 	}
 }
 
+static void on_edit_task_clicked(GtkWidget *widget, gpointer tasks_box)
+{
+	GtkWidget *hbox, *dialog, *selected_row, *entry, *content_area, *child;
+	GList *children;
+	gint result;
+	const gchar *task_string;
+	GList *iter;
+
+	selected_row = (GtkWidget *) gtk_list_box_get_selected_row(
+					GTK_LIST_BOX(tasks_box));
+
+	printf("@selected_row = %p\n", (void *) selected_row);
+
+	if(selected_row == NULL) {
+		dialog = gtk_dialog_new_with_buttons(
+				"Please select a task first",
+				GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+				GTK_DIALOG_MODAL |
+			        GTK_DIALOG_DESTROY_WITH_PARENT,
+			        "_OK",
+			        GTK_RESPONSE_OK,
+			        NULL);
+
+		gtk_dialog_run(GTK_DIALOG(dialog));
+
+		gtk_widget_destroy(dialog);
+
+		return;
+	} else {
+		children = gtk_container_get_children(GTK_CONTAINER(selected_row));
+		if(children != NULL) {
+        		/* assuming the child is a GtkBox */
+        		hbox = GTK_WIDGET(children->data);
+        		/* check if it's a GtkBox */
+        		if(GTK_IS_BOX(hbox)) {
+				children = gtk_container_get_children(GTK_CONTAINER(hbox));
+
+				for(iter = children; iter != NULL; iter = iter->next) {
+        				child = GTK_WIDGET(iter->data);
+
+        				/* check if the child is a GtkLabel */
+        				if (GTK_IS_LABEL(child)) {
+						task_string = gtk_label_get_text(GTK_LABEL(child));
+						printf("label: %s\n", task_string);
+						break;
+					}
+				}
+			}
+		}
+
+		/* create a dialog to edit selected task */
+		dialog = gtk_dialog_new_with_buttons("Edit task",
+					     GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+					     GTK_DIALOG_MODAL |
+					     GTK_DIALOG_DESTROY_WITH_PARENT,
+					     "_OK",
+					     GTK_RESPONSE_OK,
+					     "_Cancel",
+					     GTK_RESPONSE_CANCEL,
+					     NULL);
+
+		content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+		/* create an entry widget to edit the task string */
+		entry = gtk_entry_new();
+		gtk_box_pack_start(GTK_BOX(content_area), entry, TRUE, TRUE, 0);
+
+		gtk_entry_set_text(GTK_ENTRY(entry), task_string);
+
+		gtk_widget_show(entry);
+
+		/* run the dialog and get user input */
+		result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+		if(result == GTK_RESPONSE_OK) {	
+		}
+
+		gtk_widget_destroy(dialog);
+
+		return;
+	}
+}
+
 static void on_add_task_clicked(GtkWidget *widget, gpointer tasks_box)
 {
 	GtkWidget *entry, *dialog, *content_area;
@@ -209,6 +292,9 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 	/* connect the add task button to the callback function */
 	g_signal_connect(add_task_button, "clicked", G_CALLBACK(on_add_task_clicked), tasks_box);
+	
+	/* connect the edit task button to the callback function */
+	g_signal_connect(edit_task_button, "clicked", G_CALLBACK(on_edit_task_clicked), tasks_box);
 
 	/* connect the delete task button to the callback function */
 	g_signal_connect(delete_task_button, "clicked", G_CALLBACK(on_delete_task_clicked), tasks_box);
