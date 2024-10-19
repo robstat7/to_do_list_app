@@ -21,18 +21,20 @@ void set_last_allocated_task_id(short int id)
 void show_tasks(GtkWidget *tasks_box, int db_fd)
 {
 	int i;
-	short int num_tasks;
+	short int num_total_tasks;
 	struct task to_do_task;
 
-	num_tasks = db_find_num_tasks();
+	num_total_tasks = db_find_num_total_tasks();
 	
 	lseek(db_fd, sizeof(last_allocated_task_id), SEEK_SET);
 
-	for(i = 0; i < num_tasks; i++) {
+	for(i = 0; i < num_total_tasks; i++) {
 		read(db_fd, &to_do_task, sizeof(struct task));
 
-		if(to_do_task.id == -1)
+		/* do not show the deleted tasks */
+		if(to_do_task.id == -1) {
 			continue;
+		}
 
 		printf("@to_do_task.id = %d\n", to_do_task.id);
 		printf("@to_do_task.completed = %d\n", to_do_task.completed);

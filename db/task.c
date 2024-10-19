@@ -15,9 +15,9 @@ int find_db_file_size(int db_fd)
 }
 
 /* find the number of tasks in the db */
-short int db_find_num_tasks(void)
+short int db_find_num_total_tasks(void)
 {
-	short int num_tasks, last_task_id;
+	short int num_total_tasks, last_task_id;
 	int records_size, db_fd;
 
 	db_fd = get_db_fd();
@@ -27,11 +27,11 @@ short int db_find_num_tasks(void)
 
 	printf("@records_size = %d\n", records_size);
 
-	num_tasks = records_size/sizeof(struct task);
+	num_total_tasks = records_size/sizeof(struct task);
 	
-	printf("@num_tasks = %d\n", num_tasks);
+	printf("@num_total_tasks = %d\n", num_total_tasks);
 
-	return num_tasks;
+	return num_total_tasks;
 }
 
 /* delete a task from the db */
@@ -39,7 +39,7 @@ void db_delete_task(GtkWidget *selected_row)
 {
 	GtkWidget *hbox;
 	GList *children;
-	short int task_id, num_tasks, i, last_task_id;
+	short int task_id, num_total_tasks, i, last_task_id;
 	int db_fd;
 	struct task to_do_task;
 
@@ -53,7 +53,7 @@ void db_delete_task(GtkWidget *selected_row)
 
 			printf("@task id to delete is %d\n", task_id);
 
-			num_tasks = db_find_num_tasks();
+			num_total_tasks = db_find_num_total_tasks();
 			
 			db_fd = get_db_fd();
 
@@ -61,7 +61,7 @@ void db_delete_task(GtkWidget *selected_row)
 
 			lseek(db_fd, sizeof(last_task_id), SEEK_SET);
 
-			for(i = 0; i < num_tasks; i++) {
+			for(i = 0; i < num_total_tasks; i++) {
 				read(db_fd, &to_do_task, sizeof(struct task));
 
 				if(to_do_task.id == task_id) {
