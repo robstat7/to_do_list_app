@@ -131,8 +131,8 @@ static void activate(GtkApplication *app, gpointer user_data)
 {
 	GtkApplication *application;
 	GtkWidget *win, *today_label, *vbox, *toolbar, *delete_task_tool_img,
-		  *add_task_tool_img, *tasks_box;
-	GtkToolItem *add_task_button, *delete_task_button;
+		  *add_task_tool_img, *tasks_box, *edit_task_tool_img;
+	GtkToolItem *add_task_button, *delete_task_button, *edit_task_button;
 
 	/* create a new application window */
 	application = GTK_APPLICATION (app);
@@ -159,6 +159,17 @@ static void activate(GtkApplication *app, gpointer user_data)
 	/* set tooltip for the add task button */
     	gtk_widget_set_tooltip_text(GTK_WIDGET(add_task_button), "Add Task");
 
+
+	/* create edit task button */
+	edit_task_tool_img = gtk_image_new_from_file("resources/edit_task.png");
+    	edit_task_button = gtk_tool_button_new(edit_task_tool_img, "Edit Task");
+    	gtk_tool_button_set_label(GTK_TOOL_BUTTON(edit_task_button), "Edit Task");
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar), edit_task_button, -1);
+
+	/* set tooltip for the add task button */
+    	gtk_widget_set_tooltip_text(GTK_WIDGET(edit_task_button), "Edit Task");
+
+
 	/* create delete task button */
 	delete_task_tool_img = gtk_image_new_from_file("resources/delete_task.png");
     	delete_task_button = gtk_tool_button_new(delete_task_tool_img, "Delete Task");
@@ -167,6 +178,7 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 	/* set tooltip for the add task button */
     	gtk_widget_set_tooltip_text(GTK_WIDGET(delete_task_button), "Delete Task");
+
 
 	/* add toolbar to the vertical box */
     	gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
