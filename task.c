@@ -100,3 +100,30 @@ void add_task_to_tasks_box(GtkWidget *tasks_box,
 	
 	gtk_list_box_insert(GTK_LIST_BOX(tasks_box), row, -1);
 }
+
+/* edit task string in both the client and the db */
+void edit_task(GtkWidget *hbox, const gchar *task_string)
+{
+	GList *children, *iter;
+	GtkWidget *child;
+	short int task_id;
+
+	children = gtk_container_get_children(GTK_CONTAINER(hbox));
+
+	for(iter = children; iter != NULL; iter = iter->next) {
+        	child = GTK_WIDGET(iter->data);
+
+        	/* check if the child is a GtkLabel */
+        	if (GTK_IS_LABEL(child)) {
+			gtk_label_set_text(GTK_LABEL(child), task_string);
+			break;
+		}
+	}
+
+	/* find task id for the given task box */
+	task_id = *(gint *)g_object_get_data(G_OBJECT(hbox), "task_id");
+
+	/* update task string in the db */
+	db_edit_task(task_id, task_string);
+}
+

@@ -93,10 +93,9 @@ static void on_delete_task_clicked(GtkWidget *widget, gpointer tasks_box)
 static void on_edit_task_clicked(GtkWidget *widget, gpointer tasks_box)
 {
 	GtkWidget *hbox, *dialog, *selected_row, *entry, *content_area, *child;
-	GList *children;
+	GList *children, *iter;
 	gint result;
-	const gchar *task_string;
-	GList *iter;
+	const gchar *task_string, *task_text;
 
 	selected_row = (GtkWidget *) gtk_list_box_get_selected_row(
 					GTK_LIST_BOX(tasks_box));
@@ -132,8 +131,8 @@ static void on_edit_task_clicked(GtkWidget *widget, gpointer tasks_box)
 
         				/* check if the child is a GtkLabel */
         				if (GTK_IS_LABEL(child)) {
-						task_string = gtk_label_get_text(GTK_LABEL(child));
-						printf("label: %s\n", task_string);
+						task_text = gtk_label_get_text(GTK_LABEL(child));
+						printf("label: %s\n", task_text);
 						break;
 					}
 				}
@@ -157,7 +156,7 @@ static void on_edit_task_clicked(GtkWidget *widget, gpointer tasks_box)
 		entry = gtk_entry_new();
 		gtk_box_pack_start(GTK_BOX(content_area), entry, TRUE, TRUE, 0);
 
-		gtk_entry_set_text(GTK_ENTRY(entry), task_string);
+		gtk_entry_set_text(GTK_ENTRY(entry), task_text);
 
 		gtk_widget_show(entry);
 
@@ -165,6 +164,10 @@ static void on_edit_task_clicked(GtkWidget *widget, gpointer tasks_box)
 		result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 		if(result == GTK_RESPONSE_OK) {	
+			task_string = gtk_entry_get_text(GTK_ENTRY(entry));
+			if(task_string && *task_string != '\0') {
+				edit_task(hbox, task_string);
+			}
 		}
 
 		gtk_widget_destroy(dialog);

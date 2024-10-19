@@ -1,6 +1,7 @@
 #include "../include/db/task.h"
 #include "../include/db/db.h"
 #include "../task.h"
+#include <string.h>
 
 /* find database file size in bytes */
 int find_db_file_size(int db_fd)
@@ -76,4 +77,29 @@ void db_delete_task(GtkWidget *selected_row)
 	}
 }
 	
+void db_edit_task(short int task_id, const gchar *task_string)
+{
+	short int num_total_tasks, i, last_task_id;
+	int db_fd;
+	struct task to_do_task;
+
+	num_total_tasks = db_find_num_total_tasks();
+			
+	db_fd = get_db_fd();
+
+	last_task_id = get_last_allocated_task_id();
+
+	lseek(db_fd, sizeof(last_task_id), SEEK_SET);
+
+	for(i = 0; i < num_total_tasks; i++) {
+		read(db_fd, &to_do_task, sizeof(struct task));
+
+		if(to_do_task.id == task_id) {
+			strncpy(to_do_task.task_string, task_string, strlen(task_string) + 1); /* adding 1 to accomodate null char */
+			lseek(db_fd, -sizeof(struct task), SEEK_CUR);
+			write(db_fd, &to_do_task, sizeof(struct task));
+			break;
+		}
+	}
+}
 

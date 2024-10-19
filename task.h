@@ -14,4 +14,5 @@ void set_last_allocated_task_id(short int id);
 void add_task_to_tasks_box(GtkWidget *tasks_box,
 			   short int task_id,
 			   short int task_completed,
-			   char* task_string);
+			   char *task_string);
+void edit_task(GtkWidget *hbox, const gchar *task_string);
