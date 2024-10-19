@@ -42,8 +42,29 @@ static void on_delete_task_clicked(GtkWidget *widget, gpointer tasks_box)
 	gint result;
 	const gchar *task_text;
 
-	/* create a dialog to delete selected task */
-	dialog = gtk_dialog_new_with_buttons("Delete selected task?",
+	selected_row = (GtkWidget *) gtk_list_box_get_selected_row(
+					GTK_LIST_BOX(tasks_box));
+
+	printf("@selected_row = %p\n", (void *) selected_row);
+
+	if(selected_row == NULL) {
+		dialog = gtk_dialog_new_with_buttons(
+				"Please select a task first",
+				GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+				GTK_DIALOG_MODAL |
+			        GTK_DIALOG_DESTROY_WITH_PARENT,
+			        "_OK",
+			        GTK_RESPONSE_OK,
+			        NULL);
+
+		gtk_dialog_run(GTK_DIALOG(dialog));
+
+		gtk_widget_destroy(dialog);
+
+		return;
+	} else {
+		/* create a dialog to delete selected task */
+		dialog = gtk_dialog_new_with_buttons("Delete selected task?",
 					     GTK_WINDOW(gtk_widget_get_toplevel(widget)),
 					     GTK_DIALOG_MODAL |
 					     GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -53,20 +74,20 @@ static void on_delete_task_clicked(GtkWidget *widget, gpointer tasks_box)
 					     GTK_RESPONSE_CANCEL,
 					     NULL);
 
-	/* run the dialog and get user input */
-	result = gtk_dialog_run(GTK_DIALOG(dialog));
+		/* run the dialog and get user input */
+		result = gtk_dialog_run(GTK_DIALOG(dialog));
 
-	if(result == GTK_RESPONSE_OK) {
-			selected_row = (GtkWidget *) gtk_list_box_get_selected_row(
-					GTK_LIST_BOX(tasks_box));
+		if(result == GTK_RESPONSE_OK) {	
+				db_delete_task(selected_row);
 
-			db_delete_task(selected_row);
+				/* destroy the row */
+				gtk_widget_destroy(selected_row);
+		}
 
-			/* destroy the row */
-			gtk_widget_destroy(selected_row);
+		gtk_widget_destroy(dialog);
+
+		return;
 	}
-
-	gtk_widget_destroy(dialog);
 }
 
 static void on_add_task_clicked(GtkWidget *widget, gpointer tasks_box)
