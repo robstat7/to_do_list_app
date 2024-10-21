@@ -1,1 +1,1 @@
-gcc main.c -o build/main `pkg-config --cflags --libs gtk+-3.0 gtksourceview-3.0`
+gcc main.c task.c checkbox.c db/db.c db/checkbox.c db/task.c -o build/main `pkg-config --cflags --libs gtk+-3.0`
